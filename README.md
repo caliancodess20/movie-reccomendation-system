@@ -1,57 +1,38 @@
+# 🎬 Indian Movie Recommender
 
-# 🎬 Movie Recommendation System
+Find movies similar to your favourites across **Bollywood, Tollywood (Telugu), Marathi and Malayalam** cinema.
 
+**[Live demo →](https://movie-reccomendation-system-djg9yfhyxezca4jmurghau.streamlit.app/)**
 
+## What it does
+Pick a movie and the app suggests similar ones, with posters, genre, year, rating and a similarity score.
 
-> A smart movie recommendation system that suggests films based on your preferences using machine learning algorithms.
+## How it works
+1. **Data:** about 1,900 movies collected from the TMDB API (`collect_movies.py`).
+2. **ML:** each movie's plot is turned into an **embedding** (numbers that capture meaning) using `sentence-transformers` (`all-MiniLM-L6-v2`).
+3. **Matching:** **cosine similarity** finds the movies whose embeddings are closest.
+4. **App:** built with Streamlit. Embeddings are computed once (`make_embeddings.py`) and loaded from `embeddings.npy`, so the website stays fast.
 
-## 🚀 **[Try Live Demo →](https://movie-reccomendation-system-djg9yfhyxezca4jmurghau.streamlit.app/)**
+## Results
+I compared three methods on the same test: how often the top 5 recommendations share a genre with the chosen movie (plot text only, no genre given to the model).
 
-![App Preview](https://via.placeholder.com/800x400/ff6b6b/ffffff?text=Movie+Recommender+Preview)
+| Method | Genre match score |
+|---|---|
+| TF-IDF (single words) | 0.687 |
+| TF-IDF (word pairs) | 0.692 |
+| **Sentence embeddings** | **0.711** |
 
----
+*Limitation:* this test only checks genre overlap, so it understates recommendations that are good for other reasons. Marathi has fewer movies than the other three industries because TMDB has less data for it.
 
-## ✨ Features
-
-🎯 **Smart Recommendations** - Content-based filtering using TF-IDF and cosine similarity  
-🔍 **Interactive Interface** - Easy movie selection with instant results  
-📊 **Similarity Scores** - See how closely movies match your selection  
-📱 **Responsive Design** - Works perfectly on desktop and mobile  
-⚡ **Fast Performance** - Optimized with caching for quick responses  
-🎨 **Beautiful UI** - Clean, modern interface with smooth interactions  
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Purpose |
-|------------|---------|
-| **Streamlit** | Web framework & UI |
-| **Pandas** | Data manipulation |
-| **Scikit-learn** | ML algorithms (TF-IDF, Cosine Similarity) |
-| **Plotly** | Interactive visualizations |
-| **NumPy** | Numerical computations |
-
----
-
-## 🚀 Quick Start
-
-### Option 1: Use Online (Recommended)
-Click the **"Try Live Demo"** button above - no installation needed!
-
-### Option 2: Run Locally
-
+## Run locally
 ```bash
-# 1. Clone repository
-git clone https://github.com/chanekar25bai10603-sketch/movie-recommender.git
-cd movie-recommender
-
-# 2. Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
+git clone https://github.com/caliancodess20/movie-reccomendation-system.git
+cd movie-reccomendation-system
 pip install -r requirements.txt
-
-# 4. Run the app
 streamlit run streamlit_app.py
+```
+
+## Tech stack
+Python, Streamlit, pandas, NumPy, scikit-learn, sentence-transformers, Plotly.
+
+*This product uses the TMDB API but is not endorsed or certified by TMDB.*
