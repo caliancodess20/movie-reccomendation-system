@@ -8,7 +8,7 @@ df["description"] = df["description"].fillna("")
 df = df.drop_duplicates(subset="title").reset_index(drop=True)
 
 text = df["description"]
-matrix = TfidfVectorizer(stop_words="english").fit_transform(text)
+matrix = TfidfVectorizer(stop_words="english", ngram_range=(1, 2)).fit_transform(text)
 sim = cosine_similarity(matrix)
 
 # turn "Action, Drama" into a set of genre names
