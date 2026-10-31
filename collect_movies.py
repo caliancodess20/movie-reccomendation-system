@@ -28,7 +28,7 @@ for code, industry in languages.items():
             "api_key": key,
             "with_original_language": code,
             "sort_by": "vote_count.desc",
-            "vote_count.gte": 10,
+            "vote_count.gte": 1 if code == "mr" else 10,
             "page": page,
         }
         data = get_json("https://api.themoviedb.org/3/discover/movie", params)
