@@ -17,8 +17,8 @@ def load_data():
     df = pd.read_csv("movies.csv")
     df["genre"] = df["genre"].fillna("")
     df["description"] = df["description"].fillna("")
-    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
     df = df.drop_duplicates(subset="title").reset_index(drop=True)
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
     return df
 
 @st.cache_resource
@@ -55,6 +55,7 @@ def main():
     )
 
     num_recs = st.sidebar.slider("Number of recommendations:", 1, 10, 5)
+
     industry_choice = st.sidebar.selectbox(
         "Show recommendations from:",
         ["All"] + sorted(movies_df["industry"].unique())
@@ -74,7 +75,7 @@ def main():
     st.write(f"**Plot:** {selected_info['description']}")
 
     if st.button("Get Recommendations", type="primary"):
-       recommendations = get_recommendations(selected_movie, movies_df, 1000)
+        recommendations = get_recommendations(selected_movie, movies_df, 1000)
         if industry_choice != "All":
             recommendations = recommendations[recommendations["industry"] == industry_choice]
         recommendations = recommendations.head(num_recs)
