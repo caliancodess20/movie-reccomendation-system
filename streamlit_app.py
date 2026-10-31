@@ -17,6 +17,7 @@ def load_data():
     df = pd.read_csv("movies.csv")
     df["genre"] = df["genre"].fillna("")
     df["description"] = df["description"].fillna("")
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
     df = df.drop_duplicates(subset="title").reset_index(drop=True)
     return df
 
