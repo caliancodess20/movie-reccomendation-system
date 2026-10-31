@@ -55,6 +55,10 @@ def main():
     )
 
     num_recs = st.sidebar.slider("Number of recommendations:", 1, 10, 5)
+    industry_choice = st.sidebar.selectbox(
+        "Show recommendations from:",
+        ["All"] + sorted(movies_df["industry"].unique())
+    )
 
     selected_info = movies_df[movies_df["title"] == selected_movie].iloc[0]
 
@@ -70,7 +74,10 @@ def main():
     st.write(f"**Plot:** {selected_info['description']}")
 
     if st.button("Get Recommendations", type="primary"):
-        recommendations = get_recommendations(selected_movie, movies_df, num_recs)
+       recommendations = get_recommendations(selected_movie, movies_df, 1000)
+        if industry_choice != "All":
+            recommendations = recommendations[recommendations["industry"] == industry_choice]
+        recommendations = recommendations.head(num_recs)
 
         if not recommendations.empty:
             st.subheader("🎯 Recommended Movies:")
