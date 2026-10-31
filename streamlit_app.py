@@ -24,34 +24,26 @@ def load_data():
     return df
 
 
+@st.cache_resource
+def build_similarity(texts):
+    tfidf = TfidfVectorizer(stop_words="english")
+    matrix = tfidf.fit_transform(texts)
+    return cosine_similarity(matrix)
+
 def get_recommendations(movie_title, movies_df, num_recommendations=5):
-    """Get movie recommendations based on content similarity"""
-    # Combine genre and description
-    movies_df['content'] = movies_df['genre'] + ' ' + movies_df['description']
+    texts = (movies_df["genre"] + " " + movies_df["description"]).tolist()
+    cosine_sim = build_similarity(texts)
 
-    # Create TF-IDF matrix
-    tfidf = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = tfidf.fit_transform(movies_df['content'])
-
-    # Calculate similarity
-    cosine_sim = cosine_similarity(tfidf_matrix)
-
-    # Get movie index
-    try:
-        idx = movies_df[movies_df['title'] == movie_title].index[0]
-    except:
+    matches = movies_df[movies_df["title"] == movie_title]
+    if matches.empty:
         return pd.DataFrame()
+    idx = matches.index[0]
 
-    # Get similarity scores
-    sim_scores = list(enumerate(cosine_sim[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+    sim_scores = sorted(enumerate(cosine_sim[idx]), key=lambda x: x[1], reverse=True)
+    sim_scores = sim_scores[1:num_recommendations + 1]
 
-    # Get top movies (excluding the selected movie)
-    movie_indices = [i[0] for i in sim_scores[1:num_recommendations+1]]
-
-    recommendations = movies_df.iloc[movie_indices].copy()
-    recommendations['similarity'] = [sim_scores[i+1][1] for i in range(num_recommendations)]
-
+    recommendations = movies_df.iloc[[i for i, _ in sim_scores]].copy()
+    recommendations["similarity"] = [s for _, s in sim_scores]
     return recommendations
 
 def main():
