@@ -16,72 +16,13 @@ st.set_page_config(
 
 @st.cache_data
 def load_data():
-    """Create simple movie dataset"""
-    np.random.seed(42)
+    """Read movies from the CSV file we collected"""
+    df = pd.read_csv("movies.csv")
+    df["genre"] = df["genre"].fillna("")
+    df["description"] = df["description"].fillna("")
+    df = df.drop_duplicates(subset="title").reset_index(drop=True)
+    return df
 
-    movies = {
-        'title': [
-            'The Matrix', 'Inception', 'Interstellar', 'The Dark Knight', 'Pulp Fiction',
-            'Fight Club', 'Forrest Gump', 'The Godfather', 'Titanic', 'Avatar',
-            'Star Wars', 'Jurassic Park', 'Terminator 2', 'Alien', 'Blade Runner',
-            'The Shining', 'Psycho', 'Casablanca', 'The Avengers', 'Iron Man',
-            'Spider-Man', 'Batman Begins', 'The Lion King', 'Toy Story', 'Finding Nemo',
-            'Shrek', 'Frozen', 'Up', 'WALL-E', 'Inside Out'
-        ],
-        'genre': [
-            'Sci-Fi', 'Sci-Fi', 'Sci-Fi', 'Action', 'Crime',
-            'Drama', 'Drama', 'Crime', 'Romance', 'Sci-Fi',
-            'Sci-Fi', 'Adventure', 'Action', 'Horror', 'Sci-Fi',
-            'Horror', 'Thriller', 'Romance', 'Action', 'Action',
-            'Action', 'Action', 'Animation', 'Animation', 'Animation',
-            'Animation', 'Animation', 'Animation', 'Animation', 'Animation'
-        ],
-        'year': [
-            1999, 2010, 2014, 2008, 1994,
-            1999, 1994, 1972, 1997, 2009,
-            1977, 1993, 1991, 1979, 1982,
-            1980, 1960, 1942, 2012, 2008,
-            2002, 2005, 1994, 1995, 2003,
-            2001, 2013, 2009, 2008, 2015
-        ],
-        'rating': [8.7, 8.8, 8.6, 9.0, 8.9, 8.8, 8.8, 9.2, 7.8, 7.8,
-                  8.6, 8.1, 8.5, 8.4, 8.1, 8.4, 8.5, 8.5, 8.0, 7.9,
-                  7.3, 8.2, 8.5, 8.3, 8.2, 7.9, 7.4, 8.2, 8.4, 8.1],
-        'description': [
-            'A hacker discovers reality is a simulation',
-            'Thieves enter dreams to steal secrets',
-            'Astronauts travel through a wormhole',
-            'Batman fights the Joker in Gotham',
-            'Interconnected crime stories in LA',
-            'An insomniac office worker starts a fight club',
-            'Life story of a simple man with low IQ',
-            'The aging patriarch of a crime dynasty',
-            'A romance aboard the doomed ship',
-            'Humans colonize an alien planet',
-            'Rebels fight against the evil Empire',
-            'Dinosaurs are brought back to life',
-            'A cyborg is sent back to protect John Connor',
-            'The crew encounters a deadly alien creature',
-            'A blade runner hunts replicants',
-            'A family stays at a haunted hotel',
-            'A secretary embezzles money and flees',
-            'A classic wartime romance',
-            'Superheroes team up to save Earth',
-            'A billionaire becomes a superhero',
-            'A teenager gains spider powers',
-            'Bruce Wayne becomes Batman',
-            'A lion cub becomes king',
-            'Toys come to life when humans leave',
-            'A fish searches for his lost son',
-            'An ogre goes on a quest',
-            'A princess with ice powers',
-            'An old man travels with a boy scout',
-            'A robot left on Earth finds love',
-            'Emotions control a young girl'
-        ]
-    }
-
-    return pd.DataFrame(movies)
 
 def get_recommendations(movie_title, movies_df, num_recommendations=5):
     """Get movie recommendations based on content similarity"""
