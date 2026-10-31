@@ -82,20 +82,20 @@ def main():
 
         if not recommendations.empty:
             st.subheader("🎯 Recommended Movies:")
-
-            for idx, movie in recommendations.iterrows():
-                with st.expander(f"🎬 {movie['title']} (Similarity: {movie['similarity']:.2f})"):
-                    col1, col2 = st.columns([2, 1])
-                    with col1:
-                        st.write(f"**Industry:** {movie['industry']}")
-                        st.write(f"**Genre:** {movie['genre']}")
-                        st.write(f"**Year:** {movie['year']}")
-                        st.write(f"**Rating:** ⭐ {movie['rating']}")
-                        st.write(f"**Plot:** {movie['description']}")
-                    with col2:
+            
+                        cols_per_row = 5
+            rows = list(recommendations.iterrows())
+            for start in range(0, len(rows), cols_per_row):
+                cols = st.columns(cols_per_row)
+                for col, (idx, movie) in zip(cols, rows[start:start + cols_per_row]):
+                    with col:
                         if pd.notna(movie["poster"]):
                             st.image("https://image.tmdb.org/t/p/w300" + movie["poster"])
-                        st.metric("Similarity Score", f"{movie['similarity']:.2f}")
+                        st.markdown(f"**{movie['title']}**")
+                        st.caption(f"{movie['industry']} · {movie['year']} · ⭐ {movie['rating']:.1f}")
+                        st.caption(f"Match: {movie['similarity']:.0%}")
+                        with st.expander("Plot"):
+                            st.write(movie["description"])
         else:
             st.error("No recommendations found!")
 
