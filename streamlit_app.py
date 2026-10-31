@@ -1,15 +1,12 @@
-
 # streamlit_app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import plotly.express as px
 
-# Page config
 st.set_page_config(
-    page_title="Movie Recommender",
+    page_title="Indian Movie Recommender",
     page_icon="🎬",
     layout="wide"
 )
@@ -22,7 +19,6 @@ def load_data():
     df["description"] = df["description"].fillna("")
     df = df.drop_duplicates(subset="title").reset_index(drop=True)
     return df
-
 
 @st.cache_resource
 def build_similarity():
@@ -45,25 +41,21 @@ def get_recommendations(movie_title, movies_df, num_recommendations=5):
     return recommendations
 
 def main():
-    st.title("🎬 Simple Movie Recommender")
-    st.markdown("Find movies similar to your favorites!")
+    st.title("🎬 Indian Movie Recommender")
+    st.markdown("Find movies similar to your favorites: Bollywood, Tollywood, Marathi and Malayalam!")
 
-    # Load data
     movies_df = load_data()
 
-    # Sidebar
     st.sidebar.title("Options")
 
-    # Movie selection
     selected_movie = st.selectbox(
         "Choose a movie you like:",
-        movies_df['title'].tolist()
+        movies_df["title"].tolist()
     )
 
     num_recs = st.sidebar.slider("Number of recommendations:", 1, 10, 5)
 
-    # Show selected movie info
-    selected_info = movies_df[movies_df['title'] == selected_movie].iloc[0]
+    selected_info = movies_df[movies_df["title"] == selected_movie].iloc[0]
 
     st.subheader(f"Selected Movie: {selected_movie}")
     col1, col2, col3 = st.columns(3)
@@ -76,7 +68,6 @@ def main():
 
     st.write(f"**Plot:** {selected_info['description']}")
 
-    # Get recommendations
     if st.button("Get Recommendations", type="primary"):
         recommendations = get_recommendations(selected_movie, movies_df, num_recs)
 
@@ -87,39 +78,36 @@ def main():
                 with st.expander(f"🎬 {movie['title']} (Similarity: {movie['similarity']:.2f})"):
                     col1, col2 = st.columns([2, 1])
                     with col1:
+                        st.write(f"**Industry:** {movie['industry']}")
                         st.write(f"**Genre:** {movie['genre']}")
                         st.write(f"**Year:** {movie['year']}")
                         st.write(f"**Rating:** ⭐ {movie['rating']}")
                         st.write(f"**Plot:** {movie['description']}")
-                    
-                        if pd.notna(movie["poster"]):
-                            st.image("https://image.tmdwith col2:
-                    b.org/t/p/w300" + movie["poster"])
                     with col2:
                         if pd.notna(movie["poster"]):
                             st.image("https://image.tmdb.org/t/p/w300" + movie["poster"])
-                        st.metric("Similarity Score", f"{movie['similarity']:.2f}")      
+                        st.metric("Similarity Score", f"{movie['similarity']:.2f}")
         else:
             st.error("No recommendations found!")
 
-    # Show all movies
     if st.sidebar.checkbox("Show all movies"):
         st.subheader("📚 Movie Database")
-        st.dataframe(movies_df[['title', 'genre', 'year', 'rating']], use_container_width=True)
+        st.dataframe(movies_df[["title", "industry", "genre", "year", "rating"]],
+                     use_container_width=True)
 
-    # Simple analytics
     if st.sidebar.checkbox("Show analytics"):
         st.subheader("📊 Movie Analytics")
 
-        # Genre distribution
-        genre_counts = movies_df['genre'].value_counts()
-        fig = px.pie(values=genre_counts.values, names=genre_counts.index, title="Movies by Genre")
+        industry_counts = movies_df["industry"].value_counts()
+        fig = px.pie(values=industry_counts.values, names=industry_counts.index,
+                     title="Movies by Industry")
         st.plotly_chart(fig, use_container_width=True)
 
-        # Ratings over time
-        fig2 = px.scatter(movies_df, x='year', y='rating', color='genre', 
-                         title="Movie Ratings Over Time", hover_data=['title'])
+        fig2 = px.scatter(movies_df, x="year", y="rating", color="industry",
+                          title="Movie Ratings Over Time", hover_data=["title"])
         st.plotly_chart(fig2, use_container_width=True)
+
+    st.caption("This product uses the TMDB API but is not endorsed or certified by TMDB.")
 
 if __name__ == "__main__":
     main()
