@@ -25,14 +25,12 @@ def load_data():
 
 
 @st.cache_resource
-def build_similarity(texts):
-    tfidf = TfidfVectorizer(stop_words="english")
-    matrix = tfidf.fit_transform(texts)
-    return cosine_similarity(matrix)
+def build_similarity():
+    embeddings = np.load("embeddings.npy")
+    return cosine_similarity(embeddings)
 
 def get_recommendations(movie_title, movies_df, num_recommendations=5):
-    texts = (movies_df["genre"] + " " + movies_df["description"]).tolist()
-    cosine_sim = build_similarity(texts)
+    cosine_sim = build_similarity()
 
     matches = movies_df[movies_df["title"] == movie_title]
     if matches.empty:
