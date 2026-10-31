@@ -91,8 +91,14 @@ def main():
                         st.write(f"**Year:** {movie['year']}")
                         st.write(f"**Rating:** ⭐ {movie['rating']}")
                         st.write(f"**Plot:** {movie['description']}")
+                    
+                        if pd.notna(movie["poster"]):
+                            st.image("https://image.tmdwith col2:
+                    b.org/t/p/w300" + movie["poster"])
                     with col2:
-                        st.metric("Similarity Score", f"{movie['similarity']:.2f}")
+                        if pd.notna(movie["poster"]):
+                            st.image("https://image.tmdb.org/t/p/w300" + movie["poster"])
+                        st.metric("Similarity Score", f"{movie['similarity']:.2f}")      
         else:
             st.error("No recommendations found!")
 
