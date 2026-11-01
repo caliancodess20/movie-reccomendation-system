@@ -127,7 +127,10 @@ def main():
     selected_mood = st.session_state.selected_mood
 
     if st.button("Find My Movie"):
-        mood_results = recommend_by_mood(selected_mood, movies_df, num_recs)
+        mood_pool = movies_df
+        if industry_choice != "All":
+            mood_pool = movies_df[movies_df["industry"] == industry_choice]
+        mood_results = recommend_by_mood(selected_mood, mood_pool, num_recs)
         if mood_results.empty:
             st.warning("No mood match found.")
         else:
