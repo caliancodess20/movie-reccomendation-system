@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import plotly.express as px
-from mood_config import MOOD_GENRES
+from mood_config import MOOD_GENRES, MOOD_INFO
 from mood_ranker import recommend_by_mood
 
 st.set_page_config(
@@ -104,35 +104,22 @@ def main():
     st.header("What's your mood today? ✨")
     st.caption("Every mood deserves its own movie.")
 
-    moods = list(MOOD_GENRES.keys()) + ["Surprise Me"]
-    selected_mood = st.radio("Pick a mood:", moods, horizontal=True)
+    moods = list(MOOD_INFO.keys())
 
-    if st.button("Find My Movie"):
-        mood_results = recommend_by_mood(selected_mood, movies_df, num_recs)
-        if mood_results.empty:
-            st.warning("No mood match found.")
-        else:
-            for _, m in mood_results.iterrows():
-                st.write(f"🎬 {m['title']} ({m['industry']}, {m['year']})")
+    if "selected_mood" not in st.session_state:
+        st.session_state.selected_mood = moods[0]
 
-    if st.sidebar.checkbox("Show all movies"):
-        st.subheader("📚 Movie Database")
-        st.dataframe(movies_df[["title", "industry", "genre", "year", "rating"]],
-                     use_container_width=True)
-
-    if st.sidebar.checkbox("Show analytics"):
-        st.subheader("📊 Movie Analytics")
-
-        industry_counts = movies_df["industry"].value_counts()
-        fig = px.pie(values=industry_counts.values, names=industry_counts.index,
-                     title="Movies by Industry")
-        st.plotly_chart(fig, use_container_width=True)
-
-        fig2 = px.scatter(movies_df, x="year", y="rating", color="industry",
-                          title="Movie Ratings Over Time", hover_data=["title"])
-        st.plotly_chart(fig2, use_container_width=True)
-
-    st.caption("This product uses the TMDB API but is not endorsed or certified by TMDB.")
-
-if __name__ == "__main__":
-    main()
+    mood_cols = st.columns(len(moods))
+    for col, mood in zip(mood_cols, moods):
+        emoji, tagline = MOOD_INFO[mood]
+        with col:
+            is_selected = st.session_state.selected_mood == mood
+            if st.button(
+                f"{emoji} {mood}",
+                key=f"mood_{mood}",
+                type="primary" if is_selected else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state.selected_mood = mood
+                st.rerun()
+            st.caption(tagline)
