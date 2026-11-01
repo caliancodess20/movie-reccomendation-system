@@ -46,6 +46,7 @@ def get_recommendations(movie_title, movies_df, num_recommendations=5):
 def main():
     st.title("🎬 Indian Movie Recommender")
     st.markdown("Find movies similar to your favorites: Bollywood, Tollywood, Marathi and Malayalam!")
+    st.caption("Every mood has a movie. Every language has a story.")
 
     movies_df = load_data()
 
@@ -83,7 +84,7 @@ def main():
         recommendations = recommendations.head(num_recs)
 
         if not recommendations.empty:
-            st.subheader("🎯 Recommended Movies:")
+            st.subheader("If you liked that, try these! 🎯")
 
             cols_per_row = 5
             rows = list(recommendations.iterrows())
@@ -130,9 +131,10 @@ def main():
         mood_pool = movies_df
         if industry_choice != "All":
             mood_pool = movies_df[movies_df["industry"] == industry_choice]
-        mood_results = recommend_by_mood(selected_mood, mood_pool, num_recs)
+        with st.spinner("Finding stories you'll love…"):
+            mood_results = recommend_by_mood(selected_mood, mood_pool, num_recs)
         if mood_results.empty:
-            st.warning("No mood match found.")
+            st.warning("Couldn't find the right match this time. Try another mood or language.")
         else:
             st.subheader("Picked for your mood. ✨")
             mood_rows = list(mood_results.iterrows())
