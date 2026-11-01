@@ -44,6 +44,27 @@ def get_recommendations(movie_title, movies_df, num_recommendations=5):
     return recommendations
 
 def main():
+    st.html("""
+    <style>
+    [class*="st-key-mood_"] button {
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border-radius: 14px;
+    }
+    [class*="st-key-mood_"] button:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(192, 80, 106, 0.35);
+    }
+    [class*="st-key-mood_"] [data-testid="stBaseButton-primary"] {
+        box-shadow: 0 0 18px rgba(212, 175, 55, 0.55);
+        border: 1px solid #d4af37;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        [class*="st-key-mood_"] button { transition: none; }
+        [class*="st-key-mood_"] button:hover { transform: none; }
+    }
+    </style>
+    """)
+
     st.title("🎬 Indian Movie Recommender")
     st.markdown("Find movies similar to your favorites: Bollywood, Tollywood, Marathi and Malayalam!")
     st.caption("Every mood has a movie. Every language has a story.")
