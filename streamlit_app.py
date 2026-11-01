@@ -4,6 +4,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import plotly.express as px
+from mood_config import MOOD_GENRES
+from mood_ranker import recommend_by_mood
 
 st.set_page_config(
     page_title="Indian Movie Recommender",
@@ -82,8 +84,8 @@ def main():
 
         if not recommendations.empty:
             st.subheader("🎯 Recommended Movies:")
-            
-                        cols_per_row = 5
+
+            cols_per_row = 5
             rows = list(recommendations.iterrows())
             for start in range(0, len(rows), cols_per_row):
                 cols = st.columns(cols_per_row)
@@ -98,6 +100,20 @@ def main():
                             st.write(movie["description"])
         else:
             st.error("No recommendations found!")
+
+    st.header("What's your mood today? ✨")
+    st.caption("Every mood deserves its own movie.")
+
+    moods = list(MOOD_GENRES.keys()) + ["Surprise Me"]
+    selected_mood = st.radio("Pick a mood:", moods, horizontal=True)
+
+    if st.button("Find My Movie"):
+        mood_results = recommend_by_mood(selected_mood, movies_df, num_recs)
+        if mood_results.empty:
+            st.warning("No mood match found.")
+        else:
+            for _, m in mood_results.iterrows():
+                st.write(f"🎬 {m['title']} ({m['industry']}, {m['year']})")
 
     if st.sidebar.checkbox("Show all movies"):
         st.subheader("📚 Movie Database")
