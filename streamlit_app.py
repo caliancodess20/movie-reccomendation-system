@@ -123,3 +123,46 @@ def main():
                 st.session_state.selected_mood = mood
                 st.rerun()
             st.caption(tagline)
+
+    selected_mood = st.session_state.selected_mood
+
+    if st.button("Find My Movie"):
+        mood_results = recommend_by_mood(selected_mood, movies_df, num_recs)
+        if mood_results.empty:
+            st.warning("No mood match found.")
+        else:
+            st.subheader("Picked for your mood. ✨")
+            mood_rows = list(mood_results.iterrows())
+            mood_cols_per_row = 5
+            for start in range(0, len(mood_rows), mood_cols_per_row):
+                result_cols = st.columns(mood_cols_per_row)
+                for rc, (_, m) in zip(result_cols, mood_rows[start:start + mood_cols_per_row]):
+                    with rc:
+                        if pd.notna(m["poster"]):
+                            st.image("https://image.tmdb.org/t/p/w300" + m["poster"])
+                        st.markdown(f"**{m['title']}**")
+                        st.caption(f"{m['industry']} · {m['year']} · ⭐ {m['rating']:.1f}")
+                        with st.expander("Plot"):
+                            st.write(m["description"])
+
+    if st.sidebar.checkbox("Show all movies"):
+        st.subheader("📚 Movie Database")
+        st.dataframe(movies_df[["title", "industry", "genre", "year", "rating"]],
+                     use_container_width=True)
+
+    if st.sidebar.checkbox("Show analytics"):
+        st.subheader("📊 Movie Analytics")
+
+        industry_counts = movies_df["industry"].value_counts()
+        fig = px.pie(values=industry_counts.values, names=industry_counts.index,
+                     title="Movies by Industry")
+        st.plotly_chart(fig, use_container_width=True)
+
+        fig2 = px.scatter(movies_df, x="year", y="rating", color="industry",
+                          title="Movie Ratings Over Time", hover_data=["title"])
+        st.plotly_chart(fig2, use_container_width=True)
+
+    st.caption("This product uses the TMDB API but is not endorsed or certified by TMDB.")
+
+if __name__ == "__main__":
+    main()
