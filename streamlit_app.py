@@ -172,6 +172,7 @@ def main():
                         st.caption(f"{m['industry']} · {m['year']} · ⭐ {m['rating']:.1f}")
                         with st.expander("Plot"):
                             st.write(m["description"])
+
     st.header("India Map of Cinema 🗺️")
 
     if "selected_region" not in st.session_state:
@@ -182,7 +183,7 @@ def main():
     map_event = st.plotly_chart(
         build_map(st.session_state.selected_region),
         use_container_width=True,
-        theme=None, 
+        theme=None,
         on_select="rerun",
         selection_mode="points",
         key=f"india_map_{st.session_state.map_version}",
@@ -200,8 +201,32 @@ def main():
         st.session_state.map_version += 1
         st.rerun()
 
-    if st.session_state.selected_region:
-        st.write(f"Selected: **{st.session_state.selected_region}**")
+    chosen_region = st.session_state.selected_region
+    if chosen_region:
+        region_info = REGIONS[chosen_region]
+        st.subheader(chosen_region)
+
+        if region_info["industry"]:
+            region_movies = movies_df[movies_df["industry"] == region_info["industry"]]
+            st.write(f"**Cinema:** {region_info['cinema']}")
+            st.write(f"**Language:** {region_info['language']}")
+            st.write(f"**Movies in our collection:** {len(region_movies)}")
+            st.caption("A little gem worth discovering. 💎")
+
+            region_top = list(region_movies.nlargest(5, "rating").iterrows())
+            region_cols = st.columns(5)
+            for rcol, (_, rm) in zip(region_cols, region_top):
+                with rcol:
+                    if pd.notna(rm["poster"]):
+                        st.image("https://image.tmdb.org/t/p/w300" + rm["poster"])
+                    st.markdown(f"**{rm['title']}**")
+                    st.caption(f"{rm['year']} · ⭐ {rm['rating']:.1f}")
+        elif region_info["cinema"]:
+            st.write(f"**Cinema:** {region_info['cinema']}")
+            st.write(f"**Language:** {region_info['language']}")
+            st.info("Movies from this region are coming soon.")
+        else:
+            st.info("No cinema data for this region yet.")
 
     if st.sidebar.checkbox("Show all movies"):
         st.subheader("📚 Movie Database")
