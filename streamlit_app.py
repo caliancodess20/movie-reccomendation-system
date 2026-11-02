@@ -82,6 +82,15 @@ def main():
         color: #d4af37;
         animation: twinkle 2.4s ease-in-out infinite;
     }
+    @media (max-width: 640px) {
+        [data-testid="stHorizontalBlock"] {
+            flex-wrap: wrap !important;
+        }
+        [data-testid="stHorizontalBlock"] > [data-testid="stColumn"] {
+            flex: 1 1 calc(50% - 1rem) !important;
+            min-width: calc(50% - 1rem) !important;
+        }
+    }
     @media (prefers-reduced-motion: reduce) {
         [class*="st-key-mood_"] button { transition: none; }
         [class*="st-key-mood_"] button:hover { transform: none; }
