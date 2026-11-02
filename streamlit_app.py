@@ -6,6 +6,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import plotly.express as px
 from mood_config import MOOD_GENRES, MOOD_INFO
 from mood_ranker import recommend_by_mood
+from map_view import build_map
+from region_config import REGIONS
 
 st.set_page_config(
     page_title="Indian Movie Recommender",
@@ -170,6 +172,36 @@ def main():
                         st.caption(f"{m['industry']} · {m['year']} · ⭐ {m['rating']:.1f}")
                         with st.expander("Plot"):
                             st.write(m["description"])
+    st.header("India Map of Cinema 🗺️")
+
+    if "selected_region" not in st.session_state:
+        st.session_state.selected_region = None
+    if "map_version" not in st.session_state:
+        st.session_state.map_version = 0
+
+    map_event = st.plotly_chart(
+        build_map(st.session_state.selected_region),
+        use_container_width=True,
+        theme=None, 
+        on_select="rerun",
+        selection_mode="points",
+        key=f"india_map_{st.session_state.map_version}",
+    )
+
+    points = map_event.selection.points
+    if points:
+        clicked = points[0]["location"]
+        if clicked != st.session_state.selected_region:
+            st.session_state.selected_region = clicked
+            st.rerun()
+
+    if st.button("Reset selection"):
+        st.session_state.selected_region = None
+        st.session_state.map_version += 1
+        st.rerun()
+
+    if st.session_state.selected_region:
+        st.write(f"Selected: **{st.session_state.selected_region}**")
 
     if st.sidebar.checkbox("Show all movies"):
         st.subheader("📚 Movie Database")
