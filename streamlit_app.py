@@ -47,7 +47,7 @@ def get_recommendations(movie_title, movies_df, num_recommendations=5):
     return recommendations
 
 def main():
-    st.html(BASE_CSS)
+    
     st.html("""
     <style>
     [class*="st-key-mood_"] button {
@@ -289,7 +289,62 @@ def home_page():
 
 def mood_page():
     st.title("Mood Discovery")
-    st.info("This page is coming in the next step.")
+    st.caption("Every mood deserves its own movie.")
+
+    movies_df = load_data()
+
+    filter_col, count_col = st.columns(2)
+    with filter_col:
+        industry_choice = st.selectbox(
+            "Show movies from:",
+            ["All"] + sorted(movies_df["industry"].unique()),
+        )
+    with count_col:
+        num_recs = st.slider("How many movies?", 1, 10, 5)
+
+    moods = list(MOOD_INFO.keys())
+
+    if "selected_mood" not in st.session_state:
+        st.session_state.selected_mood = moods[0]
+
+    mood_cols = st.columns(len(moods))
+    for col, mood in zip(mood_cols, moods):
+        emoji, tagline = MOOD_INFO[mood]
+        with col:
+            is_selected = st.session_state.selected_mood == mood
+            if st.button(
+                f"{emoji} {mood}",
+                key=f"mood_{mood}",
+                type="primary" if is_selected else "secondary",
+                use_container_width=True,
+            ):
+                st.session_state.selected_mood = mood
+                st.rerun()
+            st.caption(tagline)
+
+    if st.button("Find My Movie", type="primary"):
+        mood_pool = movies_df
+        if industry_choice != "All":
+            mood_pool = movies_df[movies_df["industry"] == industry_choice]
+        with st.spinner("Finding stories you'll love…"):
+            mood_results = recommend_by_mood(
+                st.session_state.selected_mood, mood_pool, num_recs
+            )
+        if mood_results.empty:
+            st.warning("Couldn't find the right match this time. Try another mood or language.")
+        else:
+            st.subheader("Picked for your mood. ✨")
+            mood_rows = list(mood_results.iterrows())
+            for start in range(0, len(mood_rows), 5):
+                result_cols = st.columns(5)
+                for rc, (_, m) in zip(result_cols, mood_rows[start:start + 5]):
+                    with rc:
+                        if pd.notna(m["poster"]):
+                            st.image("https://image.tmdb.org/t/p/w300" + m["poster"])
+                        st.markdown(f"**{m['title']}**")
+                        st.caption(f"{m['industry']} · {m['year']} · ⭐ {m['rating']:.1f}")
+                        with st.expander("Plot"):
+                            st.write(m["description"])
 
 def recommendations_page():
     st.title("Recommendations")
@@ -310,6 +365,6 @@ pages = [
     st.Page(languages_page, title="Explore Languages", icon="🗺️", url_path="languages"),
     st.Page(details_page, title="Movie Details", icon="🎞️", url_path="details"),
 ]
-
+st.html(BASE_CSS)
 navigation = st.navigation(pages, position="top")
 navigation.run()
