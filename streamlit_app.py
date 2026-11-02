@@ -60,9 +60,33 @@ def main():
         box-shadow: 0 0 18px rgba(212, 175, 55, 0.55);
         border: 1px solid #d4af37;
     }
+    @keyframes fadeUp {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    [data-testid="stImage"] {
+        animation: fadeUp 0.6s ease both;
+    }
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.25; transform: scale(0.8); }
+        50% { opacity: 1; transform: scale(1.15); }
+    }
+    [class*="st-key-mood_Surprise"] button {
+        position: relative;
+    }
+    [class*="st-key-mood_Surprise"] button::after {
+        content: "✦";
+        position: absolute;
+        top: 4px;
+        right: 10px;
+        color: #d4af37;
+        animation: twinkle 2.4s ease-in-out infinite;
+    }
     @media (prefers-reduced-motion: reduce) {
         [class*="st-key-mood_"] button { transition: none; }
         [class*="st-key-mood_"] button:hover { transform: none; }
+        [data-testid="stImage"] { animation: none; }
+        [class*="st-key-mood_Surprise"] button::after { animation: none; opacity: 1; }
     }
     </style>
     """)
