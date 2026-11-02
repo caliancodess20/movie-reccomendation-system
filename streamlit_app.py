@@ -391,19 +391,67 @@ def recommendations_page():
 
 def languages_page():
     st.title("Explore Languages")
-    st.info("This page is coming in the next step.")
+    st.caption("Every language has a story.")
 
-def details_page():
-    st.title("Movie Details")
-    st.info("This page is coming in the next step.")
+    movies_df = load_data()
 
-pages = [
-    st.Page(home_page, title="Home", icon="🎬", url_path="home", default=True),
-    st.Page(mood_page, title="Mood Discovery", icon="🎭", url_path="moods"),
-    st.Page(recommendations_page, title="Recommendations", icon="🍿", url_path="recommendations"),
-    st.Page(languages_page, title="Explore Languages", icon="🗺️", url_path="languages"),
-    st.Page(details_page, title="Movie Details", icon="🎞️", url_path="details"),
-]
-st.html(BASE_CSS)
-navigation = st.navigation(pages, position="top")
-navigation.run()
+    if "selected_region" not in st.session_state:
+        st.session_state.selected_region = None
+    if "map_version" not in st.session_state:
+        st.session_state.map_version = 0
+
+    map_event = st.plotly_chart(
+        build_map(st.session_state.selected_region),
+        use_container_width=True,
+        theme=None,
+        on_select="rerun",
+        selection_mode="points",
+        key=f"india_map_{st.session_state.map_version}",
+    )
+
+    points = map_event.selection.points
+    if points:
+        clicked = points[0]["location"]
+        if clicked != st.session_state.selected_region:
+            st.session_state.selected_region = clicked
+            st.rerun()
+
+    if st.button("Reset selection"):
+        st.session_state.selected_region = None
+        st.session_state.map_version += 1
+        st.rerun()
+
+    chosen_region = st.session_state.selected_region
+    if not chosen_region:
+        st.info("Click a state on the map to explore its cinema.")
+        return
+
+    region_info = REGIONS[chosen_region]
+    st.subheader(chosen_region)
+
+    lang_caption = LANGUAGE_CAPTIONS.get(region_info["language"])
+    if lang_caption:
+        st.caption(lang_caption)
+
+    if region_info["industry"]:
+        region_movies = movies_df[movies_df["industry"] == region_info["industry"]]
+        st.write(f"**Cinema:** {region_info['cinema']}")
+        st.write(f"**Language:** {region_info['language']}")
+        st.write(f"**Movies in our collection:** {len(region_movies)}")
+        st.caption("A little gem worth discovering. 💎")
+
+        region_top = list(region_movies.nlargest(10, "rating").iterrows())
+        for start in range(0, len(region_top), 5):
+            region_cols = st.columns(5)
+            for rcol, (_, rm) in zip(region_cols, region_top[start:start + 5]):
+                with rcol:
+                    if pd.notna(rm["poster"]):
+                        st.image("https://image.tmdb.org/t/p/w300" + rm["poster"])
+                    st.markdown(f"**{rm['title']}**")
+                    st.caption(f"{rm['year']} · ⭐ {rm['rating']:.1f}")
+    elif region_info["cinema"]:
+        st.write(f"**Cinema:** {region_info['cinema']}")
+        st.write(f"**Language:** {region_info['language']}")
+        st.info("Movies from this region are coming soon.")
+    else:
+        st.info("No cinema data for this region yet.")
