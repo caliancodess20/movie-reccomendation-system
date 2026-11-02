@@ -348,7 +348,46 @@ def mood_page():
 
 def recommendations_page():
     st.title("Recommendations")
-    st.info("This page is coming in the next step.")
+    st.caption("If you liked that, try these!")
+
+    movies_df = load_data()
+
+    pick_col, industry_col, count_col = st.columns([3, 1, 1])
+    with pick_col:
+        chosen_movie = st.selectbox(
+            "Choose a movie you like:",
+            movies_df["title"].tolist(),
+        )
+    with industry_col:
+        industry_choice = st.selectbox(
+            "From:",
+            ["All"] + sorted(movies_df["industry"].unique()),
+        )
+    with count_col:
+        num_recs = st.slider("How many?", 1, 10, 5)
+
+    if st.button("Get Recommendations", type="primary"):
+        recommendations = get_recommendations(chosen_movie, movies_df, 1000)
+        if industry_choice != "All":
+            recommendations = recommendations[recommendations["industry"] == industry_choice]
+        recommendations = recommendations.head(num_recs)
+
+        if recommendations.empty:
+            st.error("Oops, a little technical break. Please try again.")
+        else:
+            st.subheader(f"Because you liked {chosen_movie}")
+            rec_rows = list(recommendations.iterrows())
+            for start in range(0, len(rec_rows), 5):
+                rec_cols = st.columns(5)
+                for rcol, (_, movie) in zip(rec_cols, rec_rows[start:start + 5]):
+                    with rcol:
+                        if pd.notna(movie["poster"]):
+                            st.image("https://image.tmdb.org/t/p/w300" + movie["poster"])
+                        st.markdown(f"**{movie['title']}**")
+                        st.caption(f"{movie['industry']} · {movie['year']} · ⭐ {movie['rating']:.1f}")
+                        st.caption(f"Match: {movie['similarity']:.0%}")
+                        with st.expander("Plot"):
+                            st.write(movie["description"])
 
 def languages_page():
     st.title("Explore Languages")
