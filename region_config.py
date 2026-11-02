@@ -50,3 +50,12 @@ UNION_TERRITORIES = [
     "Lakshadweep",
     "Puducherry",
 ]
+
+LANGUAGE_CAPTIONS = {
+    "Hindi": "Kuch kahaaniyan dil mein reh jaati hain. ❤️",
+    "Marathi": "Aapli goshta, aapla cinema. ✨",
+    "Tamil": "Ungal adutha favourite padam inge! 🎬",
+    "Telugu": "Mee next favourite cinema ikkade! 🍿",
+    "Malayalam": "Ningalude adutha favourite cinema! 💚",
+    "Kannada": "Nimma mundina favourite cinema! ✨",
+}

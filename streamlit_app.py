@@ -7,7 +7,7 @@ import plotly.express as px
 from mood_config import MOOD_GENRES, MOOD_INFO
 from mood_ranker import recommend_by_mood
 from map_view import build_map
-from region_config import REGIONS
+from region_config import REGIONS, LANGUAGE_CAPTIONS
 
 st.set_page_config(
     page_title="Indian Movie Recommender",
@@ -205,7 +205,9 @@ def main():
     if chosen_region:
         region_info = REGIONS[chosen_region]
         st.subheader(chosen_region)
-
+        lang_caption = LANGUAGE_CAPTIONS.get(region_info["language"])
+        if lang_caption:
+            st.caption(lang_caption)
         if region_info["industry"]:
             region_movies = movies_df[movies_df["industry"] == region_info["industry"]]
             st.write(f"**Cinema:** {region_info['cinema']}")
