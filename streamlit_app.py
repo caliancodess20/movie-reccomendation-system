@@ -8,6 +8,7 @@ from mood_config import MOOD_GENRES, MOOD_INFO
 from mood_ranker import recommend_by_mood
 from map_view import build_map
 from region_config import REGIONS, LANGUAGE_CAPTIONS
+from styles import BASE_CSS
 
 st.set_page_config(
     page_title="Indian Movie Recommender",
@@ -46,6 +47,7 @@ def get_recommendations(movie_title, movies_df, num_recommendations=5):
     return recommendations
 
 def main():
+    st.html(BASE_CSS)
     st.html("""
     <style>
     [class*="st-key-mood_"] button {
@@ -282,5 +284,32 @@ def main():
 
     st.caption("This product uses the TMDB API but is not endorsed or certified by TMDB.")
 
-if __name__ == "__main__":
+def home_page():
     main()
+
+def mood_page():
+    st.title("Mood Discovery")
+    st.info("This page is coming in the next step.")
+
+def recommendations_page():
+    st.title("Recommendations")
+    st.info("This page is coming in the next step.")
+
+def languages_page():
+    st.title("Explore Languages")
+    st.info("This page is coming in the next step.")
+
+def details_page():
+    st.title("Movie Details")
+    st.info("This page is coming in the next step.")
+
+pages = [
+    st.Page(home_page, title="Home", icon="🎬", url_path="home", default=True),
+    st.Page(mood_page, title="Mood Discovery", icon="🎭", url_path="moods"),
+    st.Page(recommendations_page, title="Recommendations", icon="🍿", url_path="recommendations"),
+    st.Page(languages_page, title="Explore Languages", icon="🗺️", url_path="languages"),
+    st.Page(details_page, title="Movie Details", icon="🎞️", url_path="details"),
+]
+
+navigation = st.navigation(pages, position="top")
+navigation.run()
